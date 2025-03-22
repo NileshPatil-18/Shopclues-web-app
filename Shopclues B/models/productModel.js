@@ -11,10 +11,11 @@ const productSchema = mongoose.Schema({
         required : true,
         min: 0,
     },
-    category:{
-        type : String,
-        required : true,
-    },
+    category: {
+        type: mongoose.Schema.Types.ObjectId, // ✅ Reference to Category model
+        ref: "Category",
+        required: true,
+      },
     brand:{
         type : String,   
     },
@@ -22,8 +23,13 @@ const productSchema = mongoose.Schema({
         type : String,
         required : true,
     },
+    description:{
+        type : String,
+        trim:true,
+    }
+    
 },
-{timestamp:true}
+{timestamps:true}
 );
 
 const Product = mongoose.model('Product',productSchema);

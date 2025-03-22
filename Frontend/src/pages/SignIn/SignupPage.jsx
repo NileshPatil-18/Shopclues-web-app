@@ -1,68 +1,20 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import{signup} from '../../redux/slices/authSlice'
-import { addDoc,collection, getDocs ,query} from 'firebase/firestore';
-import { db } from '../../firebase';
-import { ToastContainer,toast } from 'react-toastify';
+import { registerUser } from '../../redux/slices/authSlice';
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+
+const API_URL = "http://localhost:8080/api/register";
 
 const SignupPage = () => {
   const [userdata, setuserData] = useState({
-    username: '',
+    name: '',
     email: '',
+    mobile: '',
     password: '',
     confirmPassword: ''
   });
-
-  const addUser = async()=>{
-    try {
-      const q = query(collection(db,'user'));
-      const querySnapshot = await getDocs(q);
-
-      let isDuplicate  = false;
-
-      querySnapshot.forEach((doc)=>{
-        const userData = doc.data().user;
-        if(userData.email === userdata.email || userData.username === userdata.username){
-          isDuplicate= true;
-        }
-      });
-      if(isDuplicate){
-        toast.error("user with this email or username already exist",{
-          position:'top-right',
-          autoClose:2000,
-        })
-        navigate('/signup')
-      return ;  
-      }
-
-      const docRef = await addDoc(collection(db ,'user'),{
-          user : userdata
-      })
-      toast.success("User registered succesfully",{
-              position: "top-right",
-              autoClose: 2000,  
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined, 
-            });
-
-    } catch (error) {
-      toast.error('Error in registering the user', {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-        });
-      console.error("Error adding user info", error)
-    }
-  }
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -75,15 +27,23 @@ const SignupPage = () => {
     e.preventDefault();
     
     if (userdata.password !== userdata.confirmPassword) {
-      alert("Passwords do not match!");
+      toast.error("Passwords do not match!");
       return;
     }
-    const isUserAdded = await addUser();
 
-    
-    if(isUserAdded){
-    dispatch(signup({ username: userdata.username, email: userdata.email }));
-    navigate('/login');
+    try {
+      const response = await axios.post(API_URL, {
+        name: userdata.name,
+        email: userdata.email,
+        mobile: userdata.mobile,
+        password: userdata.password,
+      });
+
+      toast.success("User registered successfully");
+      dispatch(registerUser({ name: userdata.name, email: userdata.email }));
+      navigate('/login');
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error registering user");
     }
   };
 
@@ -93,13 +53,13 @@ const SignupPage = () => {
         <h2 className="text-center mb-4">Create an Account</h2>
         <form onSubmit={handleSignup}>
           <div className="mb-3">
-            <label className="form-label">Username</label>
+            <label className="form-label">Name</label>
             <input
               type="text"
               className="form-control"
-              name="username"
-              placeholder="Enter username"
-              value={userdata.username}
+              name="name"
+              placeholder="Enter your name"
+              value={userdata.name}
               onChange={handleChange}
               required
             />
@@ -112,6 +72,18 @@ const SignupPage = () => {
               name="email"
               placeholder="Enter email"
               value={userdata.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Mobile</label>
+            <input
+              type="text"
+              className="form-control"
+              name="mobile"
+              placeholder="Enter mobile number"
+              value={userdata.mobile}
               onChange={handleChange}
               required
             />
@@ -144,6 +116,7 @@ const SignupPage = () => {
         </form>
         <p className="text-center mt-3">Already have an account? <Link to="/login" className="text-decoration-none">Login</Link></p>
       </div>
+      <ToastContainer />
     </div>
   );
 };

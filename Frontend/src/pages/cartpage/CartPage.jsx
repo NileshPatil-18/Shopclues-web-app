@@ -1,55 +1,64 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { removeFromCart } from "../../redux/slices/cartSlice";
-import { useNavigate } from "react-router-dom";
-import { FaShoppingCart } from "react-icons/fa";
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCart, updateCartItem, removeCartItem, clearCart } from '../../redux/slices/cartSlice';
 
 const CartPage = () => {
-  const cart = useSelector((state) => state.cart);
-  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const { items, status, error } = useSelector((state) => state.cart);
+  const { user } = useSelector((state) => state.auth); // Fetch user from auth state
+
+  useEffect(() => {
+    if (user) {
+      dispatch(fetchCart()); // Fetch cart only if the user is logged in
+    }
+  }, [dispatch, user]);
+
+  const handleUpdateQuantity = (productId, quantity) => {
+    if (!user) {
+      alert('Please log in to update the cart.'); // Handle case where user is not logged in
+      return;
+    }
+    dispatch(updateCartItem({ productId, quantity }));
+  };
+
+  const handleRemoveItem = (productId) => {
+    if (!user) {
+      alert('Please log in to remove items from the cart.'); // Handle case where user is not logged in
+      return;
+    }
+    dispatch(removeCartItem({ userId: user.id, productId })); // Use userId from the authenticated user
+  };
+
+  const handleClearCart = () => {
+    if (!user) {
+      alert('Please log in to clear the cart.'); // Handle case where user is not logged in
+      return;
+    }
+    dispatch(clearCart(user.id)); // Use userId from the authenticated user
+  };
+
+  if (status === 'loading') return <div>Loading...</div>;
+  if (status === 'failed') return <div>Error: {error}</div>;
 
   return (
-    <div className="container py-5">
-      <div className="card shadow p-4">
-        <h2 className="text-center text-primary fw-bold mb-4">
-          <FaShoppingCart className="me-2" /> Shopping Cart
-        </h2>
-
-        {/* Empty Cart Message */}
-        {cart.length === 0 || !isLoggedIn ? (
-          <div className="d-flex flex-column align-items-center py-5">
-            <FaShoppingCart className="text-secondary display-3 mb-3" />
-            <p className="text-muted fs-5">You don't have any product in your cart.</p>
+    <div>
+      <h1>Cart</h1>
+      <div>
+        {items.map((item) => (
+          <div key={item.productId}>
+            <h2>{item.name}</h2>
+            <p>Quantity: {item.quantity}</p>
+            <p>Price: ${item.price}</p>
+            <input
+              type="number"
+              value={item.quantity}
+              onChange={(e) => handleUpdateQuantity(item.productId, parseInt(e.target.value))}
+            />
+            <button onClick={() => handleRemoveItem(item.productId)}>Remove</button>
           </div>
-        ) : (
-          <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-2">
-            {cart.map((item) => (
-              <div key={item.id} className="col">
-                <div className="card h-75 shadow-sm" style={{ maxWidth: "280px", margin: "auto" }}>
-                  <div className="d-flex justify-content-center align-items-center" style={{ height: "200px", overflow: "hidden" }}>
-                    <img src={item.image} alt={item.title} className="w-75 h-75 object-fit-contain pt-1" />
-                  </div>
-                  <div className="card-body text-center">
-                    <h5 className="card-title fw-bold fs-6">{item.title}</h5>
-                    <p className="text-success fw-semibold fs-6">${item.price}</p>
-                    <p className="text-muted">Qty: {item.quantity}</p>
-                  </div>
-                  <div className="card-footer bg-white border-0 d-flex justify-content-center gap-2">
-                    <button className="btn btn-danger btn-sm" onClick={() => dispatch(removeFromCart(item.id))}>
-                      ❌ Remove
-                    </button>
-                    <button className="btn btn-primary btn-sm" onClick={() => navigate("/checkout")}>
-                      🛍 Buy Now
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        ))}
       </div>
+      <button onClick={handleClearCart}>Clear Cart</button>
     </div>
   );
 };

@@ -12,7 +12,7 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const app = express();
 dotenv.config();
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
 const port = process.env.PORT || 8000;
 connectDb();

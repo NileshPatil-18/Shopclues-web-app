@@ -53,9 +53,9 @@ const placeOrder = async (req, res) => {
 const getUserOrders = async (req, res) => {
     try {
         const userId = req.user.id;
-        const orders = await Order.find({ user: userId }).populate('items.product');
+        const orders = await Order.find({  userId }).populate('items.product');
 
-        res.status(200).json(orders);
+        res.status(200).json(orders || []);
 
     } catch (error) {
         console.error("Error fetching user orders:", error);

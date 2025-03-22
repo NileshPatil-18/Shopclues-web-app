@@ -10,6 +10,9 @@ const ProductsPage = () => {
   const dispatch = useDispatch();
   const { items, status, searchTerm } = useSelector((state) => state.products);
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+  const userId = useSelector((state)=>state.auth.user?.id);
+  const cartItems = useSelector((state) => state.cart.items || []);
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,29 +29,51 @@ const ProductsPage = () => {
       });
       navigate("/login");
     } else {
-      dispatch(addToCart(product));
-      toast.success("Product added to the cart!", {
+      // Check if the product is already in the cart
+      const existingItem = cartItems.find((item) => item.productId === product._id);
+      if (existingItem) {
+        // If the product is already in the cart, update its quantity
+        dispatch(updateCartItem({ userId, productId: product._id, quantity: existingItem.quantity + 1 }));
+        toast.success("Product quantity updated in the cart!", {
+          position: "top-right",
+          autoClose: 2000,
+        });
+      } else {
+        // If the product is not in the cart, add it
+        dispatch(addToCart({ userId, productId: product._id, quantity: 1 }));
+        toast.success("Product added to the cart!", {
+          position: "top-right",
+          autoClose: 2000,
+        });
+      }
+    }
+  };
+
+  const handleToAddWishList = (product) => {
+    if (!isLoggedIn) {
+      toast.warning("Please login to add items to the cart!", {
+        position: "top-right",
+        autoClose: 2000,
+      });
+      navigate("/login");
+      } else {
+      dispatch(addToWishlist(product));
+      toast.success("Product added to wishlist!", {
         position: "top-right",
         autoClose: 2000,
       });
     }
   };
 
-  const handleToAddWishList = (product) => {
-    dispatch(addToWishlist(product));
-    toast.success("Product added to wishlist!", {
-      position: "top-right",
-      autoClose: 2000,
-    });
-  };
-
   if (status === "loading")
     return <h3 className="text-center mt-5">Loading...</h3>;
+
+
 
   // ✅ Show only searched products when searchTerm is entered
   const filteredProducts = searchTerm
     ? items.filter((product) =>
-        product.title.toLowerCase().includes(searchTerm.toLowerCase())
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : items; // Show all products when no search term is entered
 
@@ -65,7 +90,7 @@ const ProductsPage = () => {
       <div className="row g-4">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
-            <div key={product.id} className="col-sm-6 col-md-4 col-lg-3">
+            <div key={product._id} className="col-sm-6 col-md-4 col-lg-3">
               <div className="card h-100 border-0 shadow-sm p-2 rounded">
                 <Link
                   to={`/product/${product.id}`}
@@ -79,13 +104,13 @@ const ProductsPage = () => {
                     <img
                       src={product.image}
                       className="w-75 h-75 object-fit-contain p-2"
-                      alt={product.title}
+                      alt={product.name}
                     />
                   </div>
 
                   {/* Product Details */}
                   <div className="card-body text-center p-2">
-                    <h6 className="card-title text-truncate">{product.title}</h6>
+                    <h6 className="card-title text-truncate">{product.name}</h6>
                     <p className="card-text fw-bold text-success fs-5">${product.price}</p>
                   </div>
                 </Link>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "../../redux/slices/authSlice";
+import { logoutUser } from "../../redux/slices/authSlice";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUserCircle, FaSignOutAlt } from "react-icons/fa";
 
@@ -11,8 +11,8 @@ const UserMenu = () => {
   const [showDropdown, setShowDropdown] = useState(false);
 
   const handleLogout = () => {
-    dispatch(logout());
-    setShowDropdown(false); // Close dropdown after logout
+    dispatch(logoutUser());
+    setShowDropdown(false); // Close dropdown after logoutUser
     navigate("/");
   };
 
@@ -59,6 +59,11 @@ const UserMenu = () => {
             <li>
               <Link to="/address" className="dropdown-item py-2">
                 🏠 Address
+              </Link>
+            </li>
+            <li>
+              <Link to="/profile" className="dropdown-item py-2">
+              <FaUserCircle/> MyProfile
               </Link>
             </li>
           </ul>

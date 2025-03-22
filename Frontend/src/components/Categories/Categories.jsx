@@ -2,16 +2,16 @@ import React from "react";
 import { useSelector } from "react-redux";
 
 const Categories = ({ categories }) => {
-  const products = useSelector((state) => state.products); // Assuming you store products in Redux
+  const products = useSelector((state) => state.products.items); // Assuming you store products in Redux
 
   return (
     <div className="container mt-3">
       {categories.map((category) => {
-        const filteredProducts = products.filter((product) => product.category === category.label);
+        const filteredProducts = products.filter((product) => product.category.toString() === category._id.toString());
 
         return (
           <div key={category.id} className="mb-4">
-            <h3 className="text-primary">{category.label}</h3>
+            <h3 className="text-primary">{category.name}</h3>
             {filteredProducts.length > 0 ? (
               <div className="row">
                 {filteredProducts.map((product) => (
