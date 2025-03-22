@@ -10,8 +10,9 @@ const ProductsPage = () => {
   const dispatch = useDispatch();
   const { items, status, searchTerm } = useSelector((state) => state.products);
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
-  const userId = useSelector((state)=>state.auth.user?.id);
-  const cartItems = useSelector((state) => state.cart.items || []);
+  // const userId = useSelector((state)=>state.auth.user?.id);
+  // const cartItems = useSelector((state) => state.cart.items || []);
+  const { cart } = useSelector((state) => state.cart);
   
   const navigate = useNavigate();
 
@@ -21,32 +22,8 @@ const ProductsPage = () => {
     }
   }, [dispatch, status]);
 
-  const handleAddToCart = (product) => {
-    if (!isLoggedIn) {
-      toast.warning("Please login to add items to the cart!", {
-        position: "top-right",
-        autoClose: 2000,
-      });
-      navigate("/login");
-    } else {
-      // Check if the product is already in the cart
-      const existingItem = cartItems.find((item) => item.productId === product._id);
-      if (existingItem) {
-        // If the product is already in the cart, update its quantity
-        dispatch(updateCartItem({ userId, productId: product._id, quantity: existingItem.quantity + 1 }));
-        toast.success("Product quantity updated in the cart!", {
-          position: "top-right",
-          autoClose: 2000,
-        });
-      } else {
-        // If the product is not in the cart, add it
-        dispatch(addToCart({ userId, productId: product._id, quantity: 1 }));
-        toast.success("Product added to the cart!", {
-          position: "top-right",
-          autoClose: 2000,
-        });
-      }
-    }
+  const handleAddToCart = (productId, quantity = 1) => {
+    dispatch(addToCart({ productId, quantity }));
   };
 
   const handleToAddWishList = (product) => {

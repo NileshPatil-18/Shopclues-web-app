@@ -6,10 +6,11 @@ const Search = () => {
   const [query, setQuery] = useState('');
   const dispatch = useDispatch();
 
-  const handleSearch = () => {
+  const handleSearch = (event) => {
     const query = event.target.value;
-    dispatch(setSearchTerm(query)); // Store search term in Redux state
-    dispatch(fetchProductsBySearch(query)); // Fetch filtered products
+    setQuery(newQuery); // Update search input value
+    dispatch(setSearchTerm(newQuery)); // Store search term in Redux state
+    dispatch(fetchProductsBySearch(newQuery)); // Fetch filtered products
   };
 
   return (
@@ -19,7 +20,7 @@ const Search = () => {
         className="form-control"
         placeholder="Search products..."
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={handleSearch}
       />
       <button className="btn btn-warning" onClick={handleSearch}>
         Search

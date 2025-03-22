@@ -25,10 +25,9 @@ function App() {
           <Route path="/login" element={<LoginPage/>}/>
           <Route path="/product/:id" element={<ProductDetail/>}/>
           <Route path="/category/:id" element={<CategoryPage />} />
-          
-          <Route element={<ProtectedRoute/>}>
-                <Route path="/cart" element={<CartPage/>}/>
-                <Route path="/wishlist" element={<WishlistPage/>}/>
+          <Route path="/cart" element={<CartPage/>}/>
+
+          <Route element={<ProtectedRoute/>}>                <Route path="/wishlist" element={<WishlistPage/>}/>
                 <Route path="/orders" element={<OrdersPage/>}/>
                 <Route path="/profile" element={<Profile/>}/>
           </Route>

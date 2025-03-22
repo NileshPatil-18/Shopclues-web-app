@@ -1,135 +1,134 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8080/api"; // Update with your backend URL
+// API Base URL (Change according to your backend)
+const API_URL = "http://localhost:8080/api/cart";  
 
-// Async Thunks
+// 🔹 Add Item to Cart
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
-  async ({ userId, productId, quantity }, { rejectWithValue }) => {
+  async ({ productId, quantity }, { getState, rejectWithValue }) => {
     try {
-      // Construct the payload according to the backend's expectations
-      const payload = {
-        userId,
-        items: [
-          {
-            productId,
-            quantity: quantity || 1, // Default to 1 if quantity is not provided
-          },
-        ],
-      };
-
-      console.log("Sending payload:", payload); // Log the payload for debugging
-
-      const response = await axios.post(`${API_BASE_URL}/cart`, payload, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      const token = getState().auth.token;  // Get user token from auth state
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ items: [{ productId, quantity }] }),
       });
-      return response.data;
+
+      if (!response.ok) throw new Error("Failed to add item to cart");
+
+      return await response.json();
     } catch (error) {
-      if (!error.response) {
-        return rejectWithValue({ message: "Network error: Unable to connect to the server." });
-      }
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.message);
     }
   }
 );
 
+// 🔹 Get Cart Items
 export const fetchCart = createAsyncThunk(
   "cart/fetchCart",
   async (_, { getState, rejectWithValue }) => {
     try {
-      const { user } = getState().auth;
-      const userId = user?.id; // Include userId if required
-
-      const response = await axios.get(`${API_BASE_URL}/cart`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        params: { userId }, // Include userId if required
+      const token = getState().auth.token;
+      const response = await fetch(API_URL, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      return response.data;
+
+      if (!response.ok) throw new Error("Failed to fetch cart");
+
+      return await response.json();
     } catch (error) {
-      if (!error.response) {
-        return rejectWithValue({ message: "Network error: Unable to connect to the server." });
-      }
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.message);
     }
   }
 );
 
+// 🔹 Update Cart Item Quantity
 export const updateCartItem = createAsyncThunk(
   "cart/updateCartItem",
-  async ({ productId, quantity }, { rejectWithValue }) => {
+  async ({ productId, quantity }, { getState, rejectWithValue }) => {
     try {
-      const response = await axios.put(`${API_BASE_URL}/cart`, { productId, quantity }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      const token = getState().auth.token;
+      const response = await fetch(API_URL, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ productId, quantity }),
       });
-      return response.data;
+
+      if (!response.ok) throw new Error("Failed to update cart item");
+
+      return await response.json();
     } catch (error) {
-      if (!error.response) {
-        return rejectWithValue({ message: "Network error: Unable to connect to the server." });
-      }
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.message);
     }
   }
 );
 
+// 🔹 Remove Item from Cart
 export const removeCartItem = createAsyncThunk(
   "cart/removeCartItem",
-  async ({ userId, productId }, { rejectWithValue }) => {
+  async (productId, { getState, rejectWithValue }) => {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/cart/item`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        data: { userId, productId }, // Ensure userId is passed correctly
+      const token = getState().auth.token;
+      const response = await fetch(`${API_URL}/item`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ productId }),
       });
-      return response.data;
+
+      if (!response.ok) throw new Error("Failed to remove item");
+
+      return await response.json();
     } catch (error) {
-      if (!error.response) {
-        return rejectWithValue({ message: "Network error: Unable to connect to the server." });
-      }
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.message);
     }
   }
 );
 
+// 🔹 Clear Cart
 export const clearCart = createAsyncThunk(
   "cart/clearCart",
-  async (userId, { rejectWithValue }) => {
+  async (_, { getState, rejectWithValue }) => {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/cart`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        data: { userId }, // Ensure userId is passed correctly
+      const token = getState().auth.token;
+      const response = await fetch(API_URL, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      return response.data;
+
+      if (!response.ok) throw new Error("Failed to clear cart");
+
+      return await response.json();
     } catch (error) {
-      if (!error.response) {
-        return rejectWithValue({ message: "Network error: Unable to connect to the server." });
-      }
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.message);
     }
   }
 );
 
-// Cart Slice
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
     items: [],
-    status: "idle",
+    status: "idle", // idle | loading | succeeded | failed
     error: null,
   },
   reducers: {},
+
   extraReducers: (builder) => {
     builder
-      .addCase(addToCart.pending, (state) => {
-        state.status = "loading";
-      })
-      .addCase(addToCart.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.items = action.payload;
-      })
-      .addCase(addToCart.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload.message;
-      })
       .addCase(fetchCart.pending, (state) => {
         state.status = "loading";
       })
@@ -139,43 +138,45 @@ const cartSlice = createSlice({
       })
       .addCase(fetchCart.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload.message;
+        state.error = action.payload;
+      })
+      .addCase(addToCart.pending, (state) => {
+        state.status = "loading";
+      })
+      
+      .addCase(addToCart.fulfilled, (state, action) => {
+        state.items = action.payload.cart;
+      })
+      .addCase(addToCart.rejected, (state, action) => {
+        console.error(action.payload);
       })
       .addCase(updateCartItem.pending, (state) => {
         state.status = "loading";
       })
       .addCase(updateCartItem.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.items = action.payload;
+        state.items = action.payload.cart.items;
       })
       .addCase(updateCartItem.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload.message;
+        console.error(action.payload);
       })
       .addCase(removeCartItem.pending, (state) => {
         state.status = "loading";
       })
       .addCase(removeCartItem.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.items = state.items.filter(
-          (item) => item.productId !== action.payload.productId
-        );
+        state.items = action.payload.cart.items;
       })
       .addCase(removeCartItem.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload.message;
+        console.error(action.payload);
       })
       .addCase(clearCart.pending, (state) => {
         state.status = "loading";
       })
       .addCase(clearCart.fulfilled, (state) => {
-        state.status = "succeeded";
         state.items = [];
       })
       .addCase(clearCart.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload.message;
-      });
+        console.error(action.payload);
+      });  
   },
 });
 
