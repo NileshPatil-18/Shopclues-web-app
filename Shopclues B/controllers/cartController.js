@@ -22,7 +22,7 @@ const addToCart = async (req, res) => {
             cart = new Cart({ userId, items: [] });
         }
 
-        items.forEach(({ productId, quantity }) => {
+        for (const { productId, quantity } of items) {  // ✅ Changed forEach to for...of
             if (!productId) {
                 return res.status(400).json({ message: "Product ID is required" });
             }
@@ -39,7 +39,7 @@ const addToCart = async (req, res) => {
             } else {
                 cart.items.push({ productId, quantity });
             }
-        });
+        }
 
         await cart.save();
         res.status(201).json({
@@ -56,12 +56,14 @@ const addToCart = async (req, res) => {
 };
 
 
-
 const getCart = async(req,res)=>{
     try {
-        const userId = req.user.id;
+        const userId = req.user?.id;
         const cart = await Cart.findOne({userId}).populate("items.productId");
 
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized. User not found." }); // ✅ Changed from 400 to 401
+        }
         if(!cart){
             return res.status(404).json({
                 message : 'cart is empty'
@@ -81,7 +83,7 @@ const getCart = async(req,res)=>{
 
 const updateCartItem = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user?.id;
         const { productId, quantity } = req.body;
 
         if (!productId || quantity === undefined) {
@@ -121,7 +123,7 @@ const updateCartItem = async (req, res) => {
 
 const removeCartItem = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user?.id;
         const { productId } = req.body; // Ensure productId is from req.body
 
         if (!productId) {
@@ -154,7 +156,7 @@ const removeCartItem = async (req, res) => {
 
   const clearCart = async (req, res) => {
     try {
-      const { userId } = req.user.id;
+      const userId  = req.user?.id;
       await Cart.findOneAndDelete({ userId });
   
       res.status(200).json({ message: "Cart cleared" });

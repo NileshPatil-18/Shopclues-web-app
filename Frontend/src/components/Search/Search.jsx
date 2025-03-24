@@ -1,16 +1,29 @@
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { fetchProductsBySearch, setSearchTerm } from '../../redux/slices/productSlice';
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { fetchProductsBySearch, setSearchTerm, setSearching } from "../../redux/slices/productSlice";
 
 const Search = () => {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const dispatch = useDispatch();
 
   const handleSearch = (event) => {
-    const query = event.target.value;
-    setQuery(newQuery); // Update search input value
-    dispatch(setSearchTerm(newQuery)); // Store search term in Redux state
-    dispatch(fetchProductsBySearch(newQuery)); // Fetch filtered products
+    const newQuery = event.target.value;
+    setQuery(newQuery);
+    dispatch(setSearchTerm(newQuery));
+
+    if (newQuery.trim()) {
+      dispatch(setSearching(true)); // Activate search mode
+      dispatch(fetchProductsBySearch(newQuery));
+    } else {
+      dispatch(setSearching(false)); // Reset search mode when input is cleared
+    }
+  };
+
+  const handleButtonClick = () => {
+    if (query.trim()) {
+      dispatch(setSearching(true)); // Activate search mode
+      dispatch(fetchProductsBySearch(query));
+    }
   };
 
   return (
@@ -22,7 +35,7 @@ const Search = () => {
         value={query}
         onChange={handleSearch}
       />
-      <button className="btn btn-warning" onClick={handleSearch}>
+      <button className="btn btn-warning" onClick={handleButtonClick}>
         Search
       </button>
     </div>

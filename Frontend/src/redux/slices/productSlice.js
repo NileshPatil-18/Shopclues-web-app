@@ -52,10 +52,14 @@ export const fetchProductById = createAsyncThunk(
         status : 'idle',
         error : null,
         searchTerm : '',
+        isSearching: false,
     },
     reducers: {
         setSearchTerm: (state, action) => {
           state.searchTerm = action.payload;
+        },
+        setSearching: (state, action) => {
+          state.isSearching = action.payload; // Toggle search mode
         },
       },
 
@@ -86,10 +90,12 @@ export const fetchProductById = createAsyncThunk(
           })
           .addCase(fetchProductsBySearch.pending, (state) => {
             state.status = 'loading';
+            state.isSearching = true; 
           })
           .addCase(fetchProductsBySearch.fulfilled, (state, action) => {
             state.status = 'succeeded';
             state.items = action.payload;
+            state.isSearching = true;
           })
           .addCase(fetchProductsBySearch.rejected, (state, action) => {
             state.status = 'failed';
@@ -98,6 +104,7 @@ export const fetchProductById = createAsyncThunk(
           .addCase(fetchProductById.pending, (state) => {
             state.status = 'loading';
             state.error = null;
+            state.isSearching = false;
           })
           .addCase(fetchProductById.fulfilled, (state, action) => {
             state.status = 'succeeded';
@@ -111,5 +118,5 @@ export const fetchProductById = createAsyncThunk(
       },
   })
 
-  export const { setSearchTerm } = productSlice.actions
+  export const { setSearchTerm,setSearching } = productSlice.actions
 export default productSlice.reducer;

@@ -1,52 +1,65 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { fetchProductById } from "../../redux/slices/productSlice";
 
 const ProductDetail = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { product, status, error } = useSelector((state) => state.products);
 
   useEffect(() => {
-    if (id && id !== "undefined") {
+    if (id) {
       dispatch(fetchProductById(id));
     }
   }, [dispatch, id]);
 
-  if (!id || id === "undefined") {
-    return <div className="text-center text-lg text-red-500">Invalid Product ID</div>;
-  }
-
-
   if (status === "loading") {
-    return <div className="text-center text-lg">Loading...</div>;
+    return <div className="d-flex justify-content-center align-items-center vh-100 fs-4 fw-semibold">Loading...</div>;
   }
 
   if (status === "failed") {
-    return <div className="text-center text-lg text-red-500">{error}</div>;
+    return <div className="text-center text-danger mt-4">Error: {error}</div>;
+  }
+
+  if (!product) {
+    return <div className="text-center text-muted mt-4">Product not found.</div>;
   }
 
   return (
-    <div className="container mx-auto p-6">
-      {product && (
-        <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+    <div className="container py-5">
+      <div className="row g-4 shadow-lg p-4 bg-white rounded">
+        
+        {/* Product Image */}
+        <div className="col-md-6 text-center">
           <img
             src={product.image}
             alt={product.name}
-            className="w-full h-64 object-cover"
+            className="img-fluid rounded shadow"
+            style={{ maxHeight: "450px", objectFit: "cover" }}
           />
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-2">{product.name}</h2>
-            <p className="text-gray-700 text-lg">{product.description}</p>
-            <p className="text-xl font-semibold mt-4">Price: ${product.price}</p>
-            <p className="text-md text-gray-600">Brand: {product.brand}</p>
-            <button className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
-              Add to Cart
+        </div>
+
+        {/* Product Details */}
+        <div className="col-md-6 d-flex flex-column justify-content-between">
+          <div>
+            <h1 className="fw-bold">{product.name}</h1>
+            <p className="text-muted mt-2">{product.description}</p>
+            <h3 className="text-success fw-bold mt-3">${product.price}</h3>
+          </div>
+
+          {/* Buttons */}
+          <div className="mt-4">
+            <button 
+              className="btn btn-success btn-lg w-100"
+              onClick={() => navigate("/checkout")}
+            >
+              ✅ Proceed to Checkout
             </button>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

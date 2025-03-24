@@ -12,6 +12,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import OrdersPage from "./pages/ordersPage/OrdersPage";
 import Profile from "./pages/profilepage/UserProfile";
 import CategoryPage from "./pages/categoryPage/CategoryPage";
+import Checkout from "./pages/checkout/checkout";
 
 function App() {
   return(
@@ -23,11 +24,14 @@ function App() {
           <Route path="/" element={<HomePage/>}/>
           <Route path="/signup" element={<SignupPage/>}/>
           <Route path="/login" element={<LoginPage/>}/>
-          <Route path="/product/:id" element={<ProductDetail/>}/>
+          <Route path="/products/:id" element={<ProductDetail/>}/>
           <Route path="/category/:id" element={<CategoryPage />} />
-          <Route path="/cart" element={<CartPage/>}/>
+          <Route path='checkout' element={<Checkout/>}/>
+          <Route path="/cart" element={<CartPage/>}/>       
 
-          <Route element={<ProtectedRoute/>}>                <Route path="/wishlist" element={<WishlistPage/>}/>
+
+          <Route element={<ProtectedRoute/>}>    
+                <Route path="/wishlist" element={<WishlistPage/>}/>
                 <Route path="/orders" element={<OrdersPage/>}/>
                 <Route path="/profile" element={<Profile/>}/>
           </Route>

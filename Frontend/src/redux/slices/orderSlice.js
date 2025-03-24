@@ -41,11 +41,14 @@ export const fetchAllOrders = createAsyncThunk("orders/fetchAllOrders", async (_
 // ✅ Place an order
 export const placeOrder = createAsyncThunk("orders/placeOrder", async (orderData, { getState, rejectWithValue }) => {
   try {
-    const token = getState().auth.userToken;
+    const token = getState().auth.token || getState().auth.user?.token;  // ✅ Use proper token field
+    if (!token) return rejectWithValue("User authentication failed");
+
     const response = await axios.post(`${API_URL}/orders`, orderData, {
       headers: { Authorization: `Bearer ${token}` },
       withCredentials: true,
     });
+
     return response.data;
   } catch (error) {
     return rejectWithValue(error.response?.data?.message || "Order placement failed");
@@ -99,6 +102,16 @@ const orderSlice = createSlice({
         state.allOrders = state.allOrders.map(order =>
           order._id === action.payload.order._id ? action.payload.order : order
         );
+      })
+      .addCase(placeOrder.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(placeOrder.fulfilled, (state, action) => {
+        state.status = "succeeded";
+      })
+      .addCase(placeOrder.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
       });
   },
 });

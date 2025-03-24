@@ -8,7 +8,7 @@ const orderSchema = new mongoose.Schema({
     },
     items: [
         {
-            product: { 
+            productId: { 
                 type: mongoose.Schema.Types.ObjectId, 
                 ref: 'Product', 
                 required: true 
@@ -16,6 +16,10 @@ const orderSchema = new mongoose.Schema({
             quantity: { 
                 type: Number, 
                 required: true 
+            },
+            price: {
+                type: Number,   // ✅ Ensure each item has a price
+                required: true
             }
         }
     ],

@@ -2,12 +2,15 @@ import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProductsByCategory } from "../../redux/slices/productSlice";
-import ProductDetail from "../ProductList/ProductDetail";
+import { addToCart } from "../../redux/slices/cartSlice";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const CategoryPage = () => {
   const { id } = useParams(); // Get category ID from URL
   const dispatch = useDispatch();
-
+    const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+  const navigate = useNavigate();
   // Access the products array from the Redux state
   const { items: products = [], status: loading = "idle", error = null } = useSelector((state) => state.products);
 
@@ -16,6 +19,21 @@ const CategoryPage = () => {
       console.log("API Response:", response.payload); // Log the API response
     });
   }, [dispatch, id]);
+
+  const handleAddToCart = (productId, quantity = 1) => {
+      if (!isLoggedIn) {
+        toast.warning("Please login to add items to the cart!", {
+          position: "top-right",
+          autoClose: 2000,
+        });
+        navigate("/login");
+      }else {
+      dispatch(addToCart({ productId, quantity }));
+      toast.success("Product added to cart!", {
+        position: "top-right",
+        autoClose: 2000,})
+      }
+    };
 
   console.log("Redux State - Products:", products); // Log the products array
 
@@ -58,7 +76,9 @@ const CategoryPage = () => {
                   {/* <p className="card-text text-muted">{product.description}</p> */}
                 </div>
                 <div className="card-footer bg-white border-0">
-                  <button className="btn btn-primary w-100">View Details</button>
+                  <button className="btn btn-primary w-100"
+                  onClick={() => handleAddToCart(product._id, 1)}
+                  >Add to Cart</button>
                 </div>
               </div>
             </div>

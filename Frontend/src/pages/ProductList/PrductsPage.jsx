@@ -23,7 +23,18 @@ const ProductsPage = () => {
   }, [dispatch, status]);
 
   const handleAddToCart = (productId, quantity = 1) => {
+    if (!isLoggedIn) {
+      toast.warning("Please login to add items to the cart!", {
+        position: "top-right",
+        autoClose: 2000,
+      });
+      navigate("/login");
+    }else {
     dispatch(addToCart({ productId, quantity }));
+    toast.success("Product added to cart!", {
+      position: "top-right",
+      autoClose: 2000,})
+    }
   };
 
   const handleToAddWishList = (product) => {
@@ -70,7 +81,7 @@ const ProductsPage = () => {
             <div key={product._id} className="col-sm-6 col-md-4 col-lg-3">
               <div className="card h-100 border-0 shadow-sm p-2 rounded">
                 <Link
-                  to={`/product/${product.id}`}
+                  to={`/products/${product._id}`}
                   className="text-decoration-none text-dark"
                 >
                   {/* Product Image */}

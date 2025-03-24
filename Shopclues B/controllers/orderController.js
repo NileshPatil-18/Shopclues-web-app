@@ -1,55 +1,49 @@
 const mongoose = require('mongoose');
+const Cart = require('../models/cartModel');
 const Order = require('../models/orderModel');
 const Product = require('../models/productModel');
 
 const placeOrder = async (req, res) => {
     try {
-        console.log("User from token:", req.user);  // ✅ Debugging
+        const userId = req.user.id;
 
-        const { items, totalPrice, paymentMethod, address } = req.body;
-        const userId = req.user?.id;  // ✅ Ensure userId is retrieved
-
-        if (!userId) {
-            return res.status(400).json({ message: 'User ID is missing. Authentication required.' });
+        // 🛠 Find the user's cart
+        const cart = await Cart.findOne({ userId }).populate("items.productId");
+        if (!cart || cart.items.length === 0) {
+            return res.status(400).json({ message: "Cart is empty, cannot place order" });
         }
 
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).json({ message: 'Invalid User ID' });
-        }
-
-        if (!items || items.length === 0) {
-            return res.status(400).json({ message: 'Cart is empty' });
-        }
-
-        if (!address) {
-            return res.status(400).json({ message: 'Address is required' });
-        }
-
-        const formattedItems = items.map(item => {
-            if (!mongoose.Types.ObjectId.isValid(item.product)) {
-                return res.status(400).json({ message: `Invalid product ID: ${item.product}` });
-            }
-            return { product: new mongoose.Types.ObjectId(item.product), quantity: item.quantity };
+        // ✅ Calculate total price
+        let totalPrice = 0;
+        const orderItems = Cart.items.map(item => {
+            totalPrice += item.quantity * item.productId.price;  // Multiply quantity with price
+            return {
+                productId: item.productId._id,
+                quantity: item.quantity,
+                price: item.productId.price
+            };
         });
 
+        // ✅ Create the order
         const order = new Order({
-            userId: new mongoose.Types.ObjectId(userId),
-            items: formattedItems,
-            totalPrice,
-            paymentMethod,
-            address
+            userId,
+            items,
+            totalPrice,  // ✅ Include totalPrice
+            status: "Pending"
         });
 
         await order.save();
 
-        res.status(201).json({ message: 'Order placed successfully', order });
+        // ✅ Clear cart after order placement
+        await Cart.findOneAndDelete({ userId });
+
+        res.status(201).json({ message: "Order placed successfully", order });
 
     } catch (error) {
         console.error("Order placement error:", error.message);
-        res.status(500).json({ message: 'Server error', error: error.message });
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };
-
 const getUserOrders = async (req, res) => {
     try {
         const userId = req.user.id;
