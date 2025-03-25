@@ -55,11 +55,11 @@ const CartPage = () => {
         </div>
       )}
 
-      {status === "failed" && (
+      {/* {status === "failed" && (
         <div className="alert alert-danger text-center" role="alert">
-          Error: {error}
+         No items found
         </div>
-      )}
+      )} */}
 
       {items.length === 0 ? (
         <div className="alert alert-info text-center" role="alert">

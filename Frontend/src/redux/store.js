@@ -6,6 +6,7 @@ import categoryReducer from './slices/categorySlice';
 import wishlistReducer from './slices/wishlistSlice'
 import orderReducer from './slices/orderSlice';
 import userReducer from './slices/userSlice';
+import paymentReducer from './slices/paymentSlice';
 
 
 
@@ -18,6 +19,7 @@ export const store = configureStore({
         wishlist : wishlistReducer,
         order:orderReducer,
         user: userReducer,
+        payment:paymentReducer,
 
     }
 });

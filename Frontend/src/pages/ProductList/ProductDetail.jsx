@@ -8,6 +8,7 @@ const ProductDetail = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { product, status, error } = useSelector((state) => state.products);
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
 
   useEffect(() => {
     if (id) {
@@ -53,7 +54,14 @@ const ProductDetail = () => {
           <div className="mt-4">
             <button 
               className="btn btn-success btn-lg w-100"
-              onClick={() => navigate("/checkout")}
+              onClick={() =>{
+                if(!isLoggedIn){
+                  navigate("/login")
+                }else{
+                  navigate("/checkout")}
+                }
+              }
+                
             >
               ✅ Proceed to Checkout
             </button>

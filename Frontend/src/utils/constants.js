@@ -1,9 +1,9 @@
 import { FaMapMarkerAlt, FaBell, FaHeart, FaShoppingCart } from "react-icons/fa";
 
 export const Nav_1 = [
-    { id: 1, label: "Sell With Us  |", path: "/sell" },
+    { id: 1, label: "Sell With Us  |", path: "/" },
     { id: 2, label: "Contact Us  |", path: "/contact" },
-    { id: 3, label: "Download App  |", path: "/download" },
+    { id: 3, label: "Download App  |", path: "/" },
 ];
 
 export const Nav_2 = [
@@ -27,13 +27,13 @@ export const Main_Nav = [
 ];
 
 export const Nav_home = [
-    { id: 1, label: "Jaw Dropping Deals", path: "/deals" },
-    { id: 2, label: "Refurbished Mobile", path: "/refurbished" },
-    { id: 3, label: "Express Shipping", path: "/shipping" },
-    { id: 4, label: "Men's Clothing", path: "/clothing" },
-    { id: 5, label: "Women's Fashion", path: "/fashion" },
-    { id: 6, label: "Footwear", path: "/footwear" },
-    { id: 7, label: "Kitchen & Dinning", path: "/dinning" },
-    { id: 8, label: "Audio & Headphones", path: "/audio" },
-    { id: 9, label: "Bags & Luggage", path: "/global" },
+    { id: 1, label: "Jaw Dropping Deals", path: "/" },
+    { id: 2, label: "Refurbished Mobile", path: "/" },
+    { id: 3, label: "Express Shipping", path: "/" },
+    { id: 4, label: "Men's Clothing", path: "/" },
+    { id: 5, label: "Women's Fashion", path: "/" },
+    { id: 6, label: "Footwear", path: "/" },
+    { id: 7, label: "Kitchen & Dinning", path: "/" },
+    { id: 8, label: "Audio & Headphones", path: "/" },
+    { id: 9, label: "Bags & Luggage", path: "/" },
 ];

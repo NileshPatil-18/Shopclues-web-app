@@ -61,10 +61,10 @@ const Navbar = () => {
 
             {/* Icons and User Section */}
             <div className="d-flex align-items-center gap-3">
-              <Link to="/location" className="text-dark fs-5">
+              <Link to="/" className="text-dark fs-5">
                 <FaSearchLocation />
               </Link>
-              <Link to="/notification" className="text-dark fs-5">
+              <Link to="/" className="text-dark fs-5">
                 <FaBell />
               </Link>
               <Link to="/wishlist" className="text-dark fs-5">

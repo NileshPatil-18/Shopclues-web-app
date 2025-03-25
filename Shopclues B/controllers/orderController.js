@@ -9,26 +9,26 @@ const placeOrder = async (req, res) => {
 
         // 🛠 Find the user's cart
         const cart = await Cart.findOne({ userId }).populate("items.productId");
-        if (!cart || cart.items.length === 0) {
+
+        if (!cart || !cart.items || cart.items.length === 0) {
             return res.status(400).json({ message: "Cart is empty, cannot place order" });
         }
 
         // ✅ Calculate total price
         let totalPrice = 0;
-        const orderItems = Cart.items.map(item => {
-            totalPrice += item.quantity * item.productId.price;  // Multiply quantity with price
-            return {
-                productId: item.productId._id,
-                quantity: item.quantity,
-                price: item.productId.price
-            };
-        });
+        const orderItems = cart.items.map(item => ({
+            productId: item.productId._id,  // ✅ Ensure correct structure
+            quantity: item.quantity,
+            price: item.productId.price
+        }));
 
         // ✅ Create the order
         const order = new Order({
             userId,
-            items,
-            totalPrice,  // ✅ Include totalPrice
+            items: orderItems,  // ✅ Fix: use 'orderItems' instead of 'items'
+            totalPrice,
+            paymentMethod: req.body.paymentMethod, // ✅ Ensure these fields exist
+            address: req.body.address,
             status: "Pending"
         });
 
@@ -44,10 +44,11 @@ const placeOrder = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
+
 const getUserOrders = async (req, res) => {
     try {
         const userId = req.user.id;
-        const orders = await Order.find({  userId }).populate('items.product');
+        const orders = await Order.find({  userId }).populate('items.productId');
 
         res.status(200).json(orders || []);
 

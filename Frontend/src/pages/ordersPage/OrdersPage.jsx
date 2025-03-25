@@ -5,6 +5,7 @@ import { fetchUserOrders } from "../../redux/slices/orderSlice";
 const OrdersPage = () => {
   const dispatch = useDispatch();
 const { userOrders =[], status, error } = useSelector(state => state.orders || {});
+
   useEffect(() => {
     dispatch(fetchUserOrders());
   }, [dispatch]);
@@ -30,8 +31,8 @@ const { userOrders =[], status, error } = useSelector(state => state.orders || {
                 <h6 className="fw-bold mt-2">Products:</h6>
                 <ul className="list-group">
                   {order.items.map((item) => (
-                    <li key={item.product._id} className="list-group-item">
-                      {item.product.title} - <b>{item.quantity}</b> pcs
+                    <li key={item.productId?._id || item.productId} className="list-group-item">
+                      {item.productId?.title} - <b>{item.quantity}</b> pcs
                     </li>
                   ))}
                 </ul>

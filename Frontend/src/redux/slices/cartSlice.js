@@ -54,7 +54,7 @@ export const updateCartItem = createAsyncThunk(
   async ({ productId, quantity }, { getState, rejectWithValue }) => {
     try {
       const token = getState().auth.token;
-      const response = await fetch(API_URL, {
+      const response = await fetch(`${API_URL}/item`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -133,6 +133,7 @@ const cartSlice = createSlice({
         state.status = "loading";
       })
       .addCase(fetchCart.fulfilled, (state, action) => {
+        console.log("Cart Data:", action.payload);
         state.status = "succeeded";
         state.items = action.payload;
       })

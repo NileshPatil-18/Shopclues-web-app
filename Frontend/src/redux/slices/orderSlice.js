@@ -8,8 +8,8 @@ export const fetchUserOrders = createAsyncThunk(
     "orders/fetchUserOrders",
     async (_, { getState, rejectWithValue }) => {
       try {
-        const token = getState().auth.user?.token;
-        console.log("Token being sent:", token); // Debugging token
+        const token = getState().auth.token;
+        //console.log("Token being sent:", token); // Debugging token
         if (!token) return rejectWithValue("No token found");
   
         const response = await axios.get(`${API_URL}/orders`, {
