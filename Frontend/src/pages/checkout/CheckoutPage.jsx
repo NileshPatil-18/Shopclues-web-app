@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { placeOrder } from "../../redux/slices/orderSlice";
 import { useNavigate } from "react-router-dom";
+import {toast} from "react-toastify";
 
 const CheckoutPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { items:cartItems =[] } = useSelector((state) => state.cart || {});
-  const { loading, error } = useSelector((state) => state.order);
+  const { loading, error } = useSelector((state) => state.orders);
 
   const totalPrice = cartItems.reduce((acc, item) => acc + item.productId.price * item.quantity, 0);
 
@@ -22,12 +23,26 @@ const CheckoutPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(placeOrder({ ...orderData, cartItems, totalPrice })).then((res) => {
-      if (res.meta.requestStatus === "fulfilled") {
-        navigate("/orders");
-      }
-    });
+  
+    if (!orderData.paymentMethod) {
+      alert("Please select a payment method!");
+      return;
+    }
+  
+    if (orderData.paymentMethod === "Cash on Delivery") {
+      // Directly place the order and navigate to orders page
+      dispatch(placeOrder({ ...orderData, cartItems, totalPrice })).then((res) => {
+        if (res.meta.requestStatus === "fulfilled") {
+          toast.success("Order placed successfully!");
+          navigate("/orders");
+        }
+      });
+    } else {
+      // Redirect to payment page for other methods
+      navigate("/payment", { state: { orderData, cartItems, totalPrice } });
+    }
   };
+  
 
   return (
     <div className="container py-5">
@@ -45,6 +60,12 @@ const CheckoutPage = () => {
                 <ul className="list-group">
                   {cartItems.map((item) => (
                     <li key={item._id} className="list-group-item d-flex justify-content-between align-items-center">
+                        <img 
+                          src={item.productId.image} 
+                          alt={item.productId.name} 
+                          className="me-3 rounded" 
+                          style={{ width: "50px", height: "50px", objectFit: "cover" }} 
+                        />
                       <div>
                         <strong>{item.productId.name}</strong> <br />
                         <small>Quantity: {item.productId.quantity}</small>

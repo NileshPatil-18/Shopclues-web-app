@@ -1,45 +1,56 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-// Async action to create a payment intent
 export const createPaymentIntent = createAsyncThunk(
-    "payment/createPaymentIntent",
-    async (amount, { rejectWithValue }) => {
-        try {
-            const response = await axios.post("http://localhost:8080/api/payments/create-payment-intent", {
-                amount,
-                currency: "usd"
-            }, { withCredentials: true });
-            return response.data.clientSecret;
-        } catch (error) {
-            return rejectWithValue(error.response?.data || "Payment failed");
-        }
+  "payment/createPaymentIntent",
+  async (amount, { rejectWithValue }) => {
+    try {
+      const response = await fetch("http://localhost:8000/api/payments/create-payment-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ amount, currency: "usd" }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Payment Intent Failed");
+
+      return data.clientSecret;
+    } catch (error) {
+      return rejectWithValue(error.message);
     }
+  }
 );
 
 const paymentSlice = createSlice({
-    name: "payment",
-    initialState: {
-        clientSecret: "",
-        loading: false,
-        error: null
+  name: "payment",
+  initialState: {
+    clientSecret: null,
+    loading: false,
+    error: null,
+  },
+  reducers: {
+    resetPayment: (state) => {
+      state.clientSecret = null;
+      state.loading = false;
+      state.error = null;
     },
-    reducers: {},
-    extraReducers: (builder) => {
-        builder
-            .addCase(createPaymentIntent.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-            })
-            .addCase(createPaymentIntent.fulfilled, (state, action) => {
-                state.loading = false;
-                state.clientSecret = action.payload;
-            })
-            .addCase(createPaymentIntent.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            });
-    }
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(createPaymentIntent.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createPaymentIntent.fulfilled, (state, action) => {
+        state.loading = false;
+        state.clientSecret = action.payload;
+      })
+      .addCase(createPaymentIntent.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+  },
 });
 
+export const { resetPayment } = paymentSlice.actions;
 export default paymentSlice.reducer;

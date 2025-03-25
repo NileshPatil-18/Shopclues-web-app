@@ -19,7 +19,8 @@ const placeOrder = async (req, res) => {
         const orderItems = cart.items.map(item => ({
             productId: item.productId._id,  // ✅ Ensure correct structure
             quantity: item.quantity,
-            price: item.productId.price
+            price: item.productId.price,
+            totalPrice: item.quantity * item.productId.price
         }));
 
         // ✅ Create the order
@@ -60,7 +61,7 @@ const getUserOrders = async (req, res) => {
 
 const getAllOrders = async (req, res) => {
     try {
-        const orders = await Order.find().populate('user').populate('items.product');
+        const orders = await Order.find().populate('user').populate('items.productId');
         res.status(200).json(orders);
     } catch (error) {
         console.error("Error fetching all orders:", error);

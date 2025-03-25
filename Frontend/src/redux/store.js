@@ -17,7 +17,7 @@ export const store = configureStore({
         products:productReducer,
         categories: categoryReducer,
         wishlist : wishlistReducer,
-        order:orderReducer,
+        orders:orderReducer,
         user: userReducer,
         payment:paymentReducer,
 

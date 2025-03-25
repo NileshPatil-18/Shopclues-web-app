@@ -16,6 +16,7 @@ export const fetchUserOrders = createAsyncThunk(
           headers: { Authorization: `Bearer ${token}` },
         });
   
+        console.log("Fetched orders:", response.data); 
         return response.data;
       } catch (error) {
         return rejectWithValue(error.response?.data?.message || "Failed to fetch orders");
@@ -89,6 +90,7 @@ const orderSlice = createSlice({
       })
       .addCase(fetchUserOrders.fulfilled, (state, action) => {
         state.status = "succeeded";
+        console.log("Redux Store Updated with Orders:", action.payload);
         state.userOrders = action.payload;
       })
       .addCase(fetchUserOrders.rejected, (state, action) => {
@@ -108,6 +110,8 @@ const orderSlice = createSlice({
       })
       .addCase(placeOrder.fulfilled, (state, action) => {
         state.status = "succeeded";
+        console.log("Order placed successfully:", action.payload); 
+        state.userOrders.unshift(action.payload); // Add new order to the top of the list
       })
       .addCase(placeOrder.rejected, (state, action) => {
         state.status = "failed";
