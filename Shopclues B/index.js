@@ -26,10 +26,10 @@ app.use('/api',cartRoutes);
 app.use('/api',orderRoutes);
 app.use('/api/payments',paymentRoutes);
 
-app.use(express.static(path.join(__dirname, 'Frontend/build')));
-app.get('*', function (req, res){
-    res.sendFile(path.join(__dirname, 'Frontend/build/index.html'));
-})
+// app.use(express.static(path.join(__dirname, 'Frontend/dist')));
+// app.get('*', function (req, res){
+//     res.sendFile(path.join(__dirname, 'Frontend/dist/index.html'));
+// })
 app.listen(port,()=>{
     console.log(`app is listening on port ${port}`);
 })
