@@ -5,7 +5,7 @@ const {addProduct,getAllProducts,getProductById,getProductsByCategory} = require
 const router = express.Router();
 
 router.post('/products',addProduct);
-router.get('/products',getAllProducts);
+router.get('/',getAllProducts);
 router.get('/products/:id',getProductById);
 router.get('/products/category/:categoryId',getProductsByCategory);
 
