@@ -26,7 +26,7 @@ The **ShopClues Web App** is a full-stack e-commerce platform that allows users 
 ### **Frontend:**
 - React.js (Vite)
 - Redux (State Management)
-- TailwindCSS (Styling)
+- Bootstrap (Styling)
 - React Router (Navigation)
 
 ### **Backend:**
@@ -53,7 +53,7 @@ npm install
 #### **Configure Environment Variables**
 Create a `.env` file in the backend folder and add:
 ```env
-PORT=5000
+PORT=8080
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_secret_key
 ```
@@ -62,7 +62,7 @@ JWT_SECRET=your_secret_key
 ```sh
 npm start
 ```
-The backend will start at `http://localhost:5000`.
+The backend will start at `http://localhost:8080`.
 
 ---
 
