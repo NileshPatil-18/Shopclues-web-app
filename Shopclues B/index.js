@@ -13,6 +13,7 @@ const app = express();
 dotenv.config();
 app.use(express.json());
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+const path = require('path');
 
 const port = process.env.PORT || 8000;
 connectDb();
@@ -25,10 +26,10 @@ app.use('/api',cartRoutes);
 app.use('/api',orderRoutes);
 app.use('/api/payments',paymentRoutes);
 
-// app.get('/',(req,res)=>{
-//     res.send("Hello world");
-// });
-
+app.use(express.static(path.join(__dirname, 'Frontend/build')));
+app.get('*', function (req, res){
+    res.sendFile(path.join(__dirname, 'Frontend/build/index.html'));
+})
 app.listen(port,()=>{
     console.log(`app is listening on port ${port}`);
 })
