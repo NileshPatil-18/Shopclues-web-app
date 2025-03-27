@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api/categories"; // Adjust as per your backend
+const API_URL = "https://shopclues-xr1j.onrender.com/api/categories"; // Adjust as per your backend
 
 // 🔹 Fetch all categories
 export const fetchCategories = createAsyncThunk(

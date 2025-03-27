@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api";
+const API_URL = "https://shopclues-xr1j.onrender.com/api";
 
 // ✅ Fetch user orders
 export const fetchUserOrders = createAsyncThunk(

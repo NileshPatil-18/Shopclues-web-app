@@ -7,7 +7,7 @@ export const fetchUserProfile = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await axios.get("http://localhost:8080/api/profile", {
+            const response = await axios.get("https://shopclues-xr1j.onrender.com/api/profile", {
                 headers: { Authorization: `Bearer ${token}` }
             });
             return response.data;
@@ -23,7 +23,7 @@ export const updateUserProfile = createAsyncThunk(
     async (userData, { rejectWithValue }) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await axios.put("http://localhost:8080/api/profile", userData, {
+            const response = await axios.put("https://shopclues-xr1j.onrender.com/api/profile", userData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             return response.data;

@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api";
+const API_URL = "https://shopclues-xr1j.onrender.com/api";
 
 // Load user and token from localStorage on page refresh
 const initialState = {

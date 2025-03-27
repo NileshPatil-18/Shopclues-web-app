@@ -4,7 +4,7 @@ export const createPaymentIntent = createAsyncThunk(
   "payment/createPaymentIntent",
   async (amount, { rejectWithValue }) => {
     try {
-      const response = await fetch("http://localhost:8000/api/payments/create-payment-intent", {
+      const response = await fetch("https://shopclues-xr1j.onrender.com/api/payments/create-payment-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

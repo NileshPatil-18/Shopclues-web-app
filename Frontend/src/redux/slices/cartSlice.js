@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 // API Base URL (Change according to your backend)
-const API_URL = "http://localhost:8080/api/cart";  
+const API_URL = "https://shopclues-xr1j.onrender.com/api/cart";  
 
 // 🔹 Add Item to Cart
 export const addToCart = createAsyncThunk(
