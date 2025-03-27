@@ -9,13 +9,25 @@ connectDb();
 const app = express();
 
 // 🛠️ Move CORS middleware to the top
-app.use(
-  cors({
-    origin: ["http://localhost:5173", "https://shopcluesweb.netlify.app"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://shopcluesweb.netlify.app",
+  ];
+  
+  app.use(
+    cors({
+      origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
+      methods: "GET,POST,PUT,DELETE",
+      credentials: true,
+    })
+  );
+  
 
 // Now apply express.json()
 app.use(express.json());
