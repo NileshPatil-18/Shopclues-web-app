@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 const path = require('path');
 
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 8080;
 connectDb();
 
 
@@ -30,6 +30,13 @@ app.use('/api/payments',paymentRoutes);
 // app.get('*', function (req, res){
 //     res.sendFile(path.join(__dirname, 'Frontend/dist/index.html'));
 // })
+
+app.get("/", (req, res) => {
+    res.send("Backend is running successfully!");
+    console.log("Backend is running successfully!");
+    
+});
+
 app.listen(port,()=>{
     console.log(`app is listening on port ${port}`);
 })
