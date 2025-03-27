@@ -12,7 +12,9 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const app = express();
 dotenv.config();
 app.use(express.json());
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cors({
+     origin: ["http://localhost:5173", "https://shopcluesweb.netlify.app"] ,
+      credentials: true }));
 const path = require('path');
 
 const port = process.env.PORT || 8080;
@@ -34,7 +36,7 @@ app.use('/api/payments',paymentRoutes);
 app.get("/", (req, res) => {
     res.send("Backend is running successfully!");
     console.log("Backend is running successfully!");
-    
+
 });
 
 app.listen(port,()=>{
