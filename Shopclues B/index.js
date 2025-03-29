@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 app.use(cors({
-    origin: ["https://shopcluesweb.netlify.app","http://localhost:5173"] ,
+    origin: ["https://shopclues-52bn.onrender.com/","http://localhost:5173"] ,
     methods: "GET,POST,PUT,DELETE",
     credentials: true 
     }));
