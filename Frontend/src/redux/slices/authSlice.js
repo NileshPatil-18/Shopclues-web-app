@@ -1,7 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "https://shopclues-xr1j.onrender.com/api";
+const API_BASE_URL = import.meta.env.API_BASE_URL || "https://shopclues-xr1j.onrender.com";
+
+//const API_BASE_URL = "https://shopclues-xr1j.onrender.com/api";
 
 // Load user and token from localStorage on page refresh
 const initialState = {
@@ -14,7 +16,7 @@ const initialState = {
 
 export const loginUser = createAsyncThunk("auth/loginUser", async (userData, { rejectWithValue }) => {
   try {
-    const response = await axios.post(`${API_URL}/login`, userData);
+    const response = await axios.post(`${API_BASE_URL}/api/login`, userData);
     const { user, token } = response.data;
 
     // Store user, token, and isLoggedIn in localStorage
@@ -30,7 +32,7 @@ export const loginUser = createAsyncThunk("auth/loginUser", async (userData, { r
 
 export const registerUser = createAsyncThunk("auth/registerUser", async (userData, { rejectWithValue }) => {
   try {
-    const response = await axios.post(`${API_URL}/register`, userData, {
+    const response = await axios.post(`${API_BASE_URL}/api/register`, userData, {
       headers: {
         "Content-Type": "application/json",
       },

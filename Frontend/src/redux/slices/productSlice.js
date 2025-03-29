@@ -1,8 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+const API_BASE_URL = import.meta.env.API_BASE_URL || "https://shopclues-xr1j.onrender.com";
+
 
 export const fetchProducts = createAsyncThunk('products/fetchProducts', async () => {
-    const response = await axios.get('https://shopclues-xr1j.onrender.com/api/products');
+    const response = await axios.get(`${API_BASE_URL}/api/products`);
     return response.data;
   });
 
@@ -11,7 +13,7 @@ export const fetchProductsByCategory = createAsyncThunk(
   'products/fetchProductsByCategory',
   async (categoryId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`https://shopclues-xr1j.onrender.com/api/products/category/${categoryId}`);
+      const response = await axios.get(`${API_BASE_URL}/api/products/category/${categoryId}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch products");
@@ -23,7 +25,7 @@ export const fetchProductsBySearch = createAsyncThunk(
   'products/fetchProductsBySearch',
   async (searchTerm, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`https://shopclues-xr1j.onrender.com/api/products?search=${searchTerm}`);
+      const response = await axios.get(`${API_BASE_URL}/api/products?search=${searchTerm}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to search products");
@@ -36,7 +38,7 @@ export const fetchProductById = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     if (!id) return rejectWithValue("Invalid product ID");
     try {
-      const response = await axios.get(`https://shopclues-xr1j.onrender.com/api/products/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/api/products/${id}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch product");
