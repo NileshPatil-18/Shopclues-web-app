@@ -1,15 +1,24 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const cors = require("cors");
+// const cors = require("cors");
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "hhttps://shopcluesweb.onrender.com"
+  "https://shopcluesweb.onrender.com"
 ];
 
-app.use(cors({ origin: allowedOrigins, credentials: true }));
-
+// CORS Middleware with Dynamic Origin Handling
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+}));
 
 app.use(express.json());
 
