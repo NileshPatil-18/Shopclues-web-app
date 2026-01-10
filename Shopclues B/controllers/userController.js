@@ -3,17 +3,32 @@ const { generateToken } = require('../utils/jwt');
 
 const registerUser = async(req, res)=>{
     try {
-        const {name,email,mobile,password} =req.body;
+        const {name,email,mobile,password,role='user'} =req.body;
+
+        // If first user, make them admin (for demo)
+        const userCount = await User.countDocuments();
+        const finalRole = userCount === 0 ? 'admin' : role;
+
 
         const existingUser = await User.findOne({email});
         if(existingUser){
             return res.status(400).json({message:'user already exists'});
         }
 
-        const newUser = new User({name,email,mobile,password});
+        const newUser = new User({
+            name,
+            email,
+            mobile,
+            password,
+            role:finalRole
+        });
         await newUser.save();
 
-        const token = generateToken({id:newUser._id,email:newUser.email});
+        const token = generateToken({
+            id:newUser._id,
+            email:newUser.email,
+            role:newUser.role
+        });
 
         res.status(201).json({message:'user registered successfully',
             user:{
@@ -21,6 +36,7 @@ const registerUser = async(req, res)=>{
                 name:newUser.name,
                 email:newUser.email,
                 mobile:newUser.mobile,
+                role:newUser.role
                 },
             token,
         });
@@ -34,26 +50,51 @@ const loginUser = async(req, res)=>{
     try {
         const {email, password} = req.body;
 
+        console.log('🔍 Login attempt for:', email);
+        
         const user = await User.findOne({email});
         if(!user){
+            console.log('❌ User not found');
             return res.status(400).json({message:'user not found'});
         }
 
+        console.log('✅ User found:', {
+            _id: user._id,
+            email: user.email,
+            role: user.role,
+            hasRole: 'role' in user
+        });
+
         const isMatch = await user.comparePassword(password);
         if(!isMatch){
+            console.log('❌ Password mismatch');
             return res.status(400).json({message:'invalid credentials'});
         }
        
-        const token = generateToken({ id: user._id, email: user.email });
-        res.status(200).json({message:"Login Succesfull",
-            user:{_id:user._id,
-                name:user.name,
-                email:user.email
-            },
-        token,
+        const token = generateToken({
+             id: user._id, 
+             email: user.email,
+             role:  user.role
+        });
+        
+        const responseUser = {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role // This should be included
+        };
+        
+        console.log('📤 Sending response user object:', responseUser);
+        console.log('Response includes role?', 'role' in responseUser);
+        
+        res.status(200).json({
+            message: "Login Successful",
+            user: responseUser,
+            token,
         });
         
     } catch (error) {
+        console.error('🔥 Login error:', error);
         res.status(500).json({message:'server error', error:error.message});
     }
 }
@@ -83,7 +124,7 @@ const updateUserProfile = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Update user fields
+        
         user.name = name || user.name;
         user.email = email || user.email;
         user.mobile = mobile || user.mobile;

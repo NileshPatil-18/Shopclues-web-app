@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "https://shopclues-xr1j.onrender.com/api/categories"; // Adjust as per your backend
+const API_URL = "https://shopclues-xr1j.onrender.com/api/categories"; 
 
-// 🔹 Fetch all categories
+//  Fetch all categories
 export const fetchCategories = createAsyncThunk(
     "categories/fetchCategories",
     async (_, { rejectWithValue }) => {
@@ -16,7 +16,7 @@ export const fetchCategories = createAsyncThunk(
     }
 );
 
-// 🔹 Add a new category
+//  Add a new category
 export const addCategory = createAsyncThunk(
     "categories/addCategory",
     async (categoryData, { rejectWithValue }) => {
@@ -29,7 +29,7 @@ export const addCategory = createAsyncThunk(
     }
 );
 
-// 🔹 Update category
+//  Update category
 export const updateCategory = createAsyncThunk(
     "categories/updateCategory",
     async ({ id, categoryData }, { rejectWithValue }) => {
@@ -42,7 +42,7 @@ export const updateCategory = createAsyncThunk(
     }
 );
 
-// 🔹 Delete category
+//  Delete category
 export const deleteCategory = createAsyncThunk(
     "categories/deleteCategory",
     async (id, { rejectWithValue }) => {
@@ -55,7 +55,7 @@ export const deleteCategory = createAsyncThunk(
     }
 );
 
-// 🔹 Create Slice
+
 const categorySlice = createSlice({
     name: "categories",
     initialState: {
@@ -66,7 +66,7 @@ const categorySlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-            // ✅ Fetch Categories
+            
             .addCase(fetchCategories.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -80,12 +80,11 @@ const categorySlice = createSlice({
                 state.error = action.payload;
             })
 
-            // ✅ Add Category
+           
             .addCase(addCategory.fulfilled, (state, action) => {
                 state.categories.push(action.payload);
             })
 
-            // ✅ Update Category
             .addCase(updateCategory.fulfilled, (state, action) => {
                 const index = state.categories.findIndex((cat) => cat._id === action.payload._id);
                 if (index !== -1) {
@@ -93,7 +92,6 @@ const categorySlice = createSlice({
                 }
             })
 
-            // ✅ Delete Category
             .addCase(deleteCategory.fulfilled, (state, action) => {
                 state.categories = state.categories.filter((cat) => cat._id !== action.payload);
             });

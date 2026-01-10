@@ -3,13 +3,15 @@ import axios from "axios";
 
 const API_URL = "https://shopclues-xr1j.onrender.com/api";
 
-// ✅ Fetch user orders
+// Fetch user orders
 export const fetchUserOrders = createAsyncThunk(
     "orders/fetchUserOrders",
     async (_, { getState, rejectWithValue }) => {
       try {
         const token = getState().auth.token;
-        //console.log("Token being sent:", token); // Debugging token
+        
+        //console.log("Token being sent:", token); 
+
         if (!token) return rejectWithValue("No token found");
   
         const response = await axios.get(`${API_URL}/orders`, {
@@ -25,7 +27,7 @@ export const fetchUserOrders = createAsyncThunk(
   );
   
 
-// ✅ Fetch all orders (Admin)
+// Fetch all orders (Admin)
 export const fetchAllOrders = createAsyncThunk("orders/fetchAllOrders", async (_, { getState, rejectWithValue }) => {
   try {
     const token = getState().auth.userToken;
@@ -39,7 +41,7 @@ export const fetchAllOrders = createAsyncThunk("orders/fetchAllOrders", async (_
   }
 });
 
-// ✅ Place an order
+//  Place an order
 export const placeOrder = createAsyncThunk("orders/placeOrder", async (orderData, { getState, rejectWithValue }) => {
   try {
     const token = getState().auth.token || getState().auth.user?.token;  // ✅ Use proper token field
@@ -56,7 +58,7 @@ export const placeOrder = createAsyncThunk("orders/placeOrder", async (orderData
   }
 });
 
-// ✅ Update order status (Admin)
+// Update order status (Admin)
 export const updateOrderStatus = createAsyncThunk("orders/updateOrderStatus", async ({ orderId, status }, { getState, rejectWithValue }) => {
   try {
     const token = getState().auth.userToken;
@@ -110,8 +112,11 @@ const orderSlice = createSlice({
       })
       .addCase(placeOrder.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log("Order placed successfully:", action.payload); 
-        state.userOrders.unshift(action.payload); // Add new order to the top of the list
+         const order = action.payload.order || action.payload;
+
+         if (order?._id) {
+          state.userOrders.unshift(order);
+  } 
       })
       .addCase(placeOrder.rejected, (state, action) => {
         state.status = "failed";

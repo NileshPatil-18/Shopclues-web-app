@@ -7,11 +7,10 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const CategoryPage = () => {
-  const { id } = useParams(); // Get category ID from URL
+  const { id } = useParams(); 
   const dispatch = useDispatch();
     const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const navigate = useNavigate();
-  // Access the products array from the Redux state
   const { items: products = [], status: loading = "idle", error = null } = useSelector((state) => state.products);
 
   useEffect(() => {

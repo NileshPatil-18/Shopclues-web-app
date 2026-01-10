@@ -17,8 +17,31 @@ const initialState = {
 export const loginUser = createAsyncThunk("auth/loginUser", async (userData, { rejectWithValue }) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/api/login`, userData);
+
+     console.log('=== FULL LOGIN RESPONSE ===');
+    console.log('Response status:', response.status);
+    console.log('Response data:', response.data);
+    console.log('User object from API:', response.data.user);
+    console.log('User role from API:', response.data.user?.role);
+    console.log('===========================');
+    
     const { user, token } = response.data;
 
+
+     console.log('API Response user object:', user);
+    console.log('Has role property?', 'role' in user);
+
+     if (!user.role) {
+      console.log('Role missing, checking if admin email...');
+      // Check if this is likely an admin (by email pattern)
+      const isAdminEmail = user.email.includes('admin') || 
+                          user.email === 'admin@example.com' ||
+                          user.email === 'admin@shopclues.com';
+      
+      user.role = isAdminEmail ? 'admin' : 'user';
+      console.log('Assigned role:', user.role);
+    }
+    
     // Store user, token, and isLoggedIn in localStorage
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
@@ -62,7 +85,7 @@ export const logoutUser = createAsyncThunk("auth/logoutUser", async () => {
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {}, // No additional reducers needed
+  reducers: {}, 
   extraReducers: (builder) => {
     builder
       .addCase(loginUser.pending, (state) => {
@@ -70,9 +93,13 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
+         console.log('Login successful, payload:', action.payload);
+  console.log('User object from API:', action.payload.user);
+  console.log('User role from API:', action.payload.user?.role);
+
         state.user = action.payload.user;
         state.token = action.payload.token;
-        state.isLoggedIn = true; // Set isLoggedIn to true
+        state.isLoggedIn = true; 
         state.loading = false;
         state.error = null;
       })
@@ -87,7 +114,7 @@ const authSlice = createSlice({
       .addCase(registerUser.fulfilled, (state, action) => {
         state.user = action.payload.user;
         state.token = action.payload.token;
-        state.isLoggedIn = true; // Set isLoggedIn to true
+        state.isLoggedIn = true; 
         state.loading = false;
         state.error = null;
       })
@@ -102,7 +129,7 @@ const authSlice = createSlice({
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
         state.token = null;
-        state.isLoggedIn = false; // Set isLoggedIn to false
+        state.isLoggedIn = false; 
         state.loading = false;
         state.error = null;
       })

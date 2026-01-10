@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 
 const Categories = ({ categories }) => {
-  const products = useSelector((state) => state.products.items); // Assuming you store products in Redux
+  const products = useSelector((state) => state.products.items); 
 
   return (
     <div className="container mt-3">

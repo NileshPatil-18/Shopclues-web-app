@@ -5,6 +5,11 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ShopClues</title>
+    <!-- Allow HTTP images on HTTPS site -->
+  <meta http-equiv="Content-Security-Policy" content="img-src * data:;">
+  
+  <!-- OR this simpler version -->
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   </head>
   <body>
     <div id="root"></div>

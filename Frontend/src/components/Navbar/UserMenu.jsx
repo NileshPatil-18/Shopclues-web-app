@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../../redux/slices/authSlice";
 import { Link, useNavigate } from "react-router-dom";
-import { FaUserCircle, FaSignOutAlt } from "react-icons/fa";
+import { FaUserCircle, FaSignOutAlt, FaShieldAlt, FaBox, FaMapMarkerAlt } from "react-icons/fa";
 
 const UserMenu = () => {
   const dispatch = useDispatch();
@@ -12,7 +12,7 @@ const UserMenu = () => {
 
   const handleLogout = () => {
     dispatch(logoutUser());
-    setShowDropdown(false); // Close dropdown after logoutUser
+    setShowDropdown(false);
     navigate("/");
   };
 
@@ -25,7 +25,7 @@ const UserMenu = () => {
         style={{ fontWeight: "500", transition: "0.3s" }}
       >
         <FaUserCircle className="me-1" size={22} />
-        {user?.user?.username}
+        {user?.name || "User"}
       </button>
 
       {/* Dropdown Menu */}
@@ -44,33 +44,68 @@ const UserMenu = () => {
           <div className="d-flex align-items-center gap-2 border-bottom pb-2">
             <FaUserCircle size={28} className="text-primary" />
             <div>
-              <h6 className="m-0">{user?.user?.username || "User"}</h6>
-              <small className="text-muted">{user?.user?.email}</small>
+              <h6 className="m-0">{user?.name || "User"}</h6>
+              <small className="text-muted">{user?.email}</small>
+              {user?.role === 'admin' && (
+                <span className="badge bg-warning text-dark ms-2">Admin</span>
+              )}
             </div>
           </div>
 
           {/* Menu Links */}
           <ul className="list-unstyled mt-2">
             <li>
-              <Link to="/orders" className="dropdown-item py-2">
-                📦 My Orders
+              <Link 
+                to="/orders" 
+                className="dropdown-item py-2 d-flex align-items-center"
+                onClick={() => setShowDropdown(false)}
+              >
+                <FaBox className="me-2" />
+                My Orders
               </Link>
             </li>
             <li>
-              <Link to="/address" className="dropdown-item py-2">
-                🏠 Address
+              <Link 
+                to="/address" 
+                className="dropdown-item py-2 d-flex align-items-center"
+                onClick={() => setShowDropdown(false)}
+              >
+                <FaMapMarkerAlt className="me-2" />
+                Address
               </Link>
             </li>
             <li>
-              <Link to="/profile" className="dropdown-item py-2">
-              <FaUserCircle/> MyProfile
+              <Link 
+                to="/profile" 
+                className="dropdown-item py-2 d-flex align-items-center"
+                onClick={() => setShowDropdown(false)}
+              >
+                <FaUserCircle className="me-2" />
+                My Profile
               </Link>
             </li>
+            
+            {/* ADMIN DASHBOARD LINK */}
+            {user?.role === 'admin' && (
+              <li>
+                <Link 
+                  to="/admin/dashboard" 
+                  className="dropdown-item py-2 d-flex align-items-center text-warning"
+                  onClick={() => setShowDropdown(false)}
+                >
+                  <FaShieldAlt className="me-2" />
+                  Admin Dashboard
+                </Link>
+              </li>
+            )}
           </ul>
+
+          {/* Divider */}
+          <hr className="my-2" />
 
           {/* Logout Button */}
           <button
-            className="btn btn-danger w-100 mt-2 d-flex align-items-center justify-content-center gap-2"
+            className="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2"
             onClick={handleLogout}
           >
             <FaSignOutAlt />

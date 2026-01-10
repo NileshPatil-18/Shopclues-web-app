@@ -1,51 +1,108 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { fetchCart, removeCartItem, updateCartItem, clearCart } from "../../redux/slices/cartSlice";
-
+import { toast } from "react-toastify";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { getImageUrl } from "../../utils/imageUrl";
 const CartPage = () => {
   const dispatch = useDispatch();
-  const { items, status, error } = useSelector((state) => state.cart);
   const navigate = useNavigate();
+  const { items, status, error } = useSelector((state) => state.cart);
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+
+  // Check authentication on component mount
   useEffect(() => {
-    dispatch(fetchCart()); // Load cart when page loads
-  }, [dispatch]);
+    console.log("CartPage - Authentication check:", { isLoggedIn });
+    
+    if (!isLoggedIn) {
+      toast.warning("Please login to view your cart", {
+        position: "top-right",
+        autoClose: 2000,
+      });
+      navigate("/login", { 
+        state: { 
+          from: "/cart",
+          message: "Login required to access cart" 
+        } 
+      });
+    }
+  }, [isLoggedIn, navigate]);
+
+  // Load cart only if user is logged in
+  useEffect(() => {
+    if (isLoggedIn) {
+      dispatch(fetchCart());
+    }
+  }, [dispatch, isLoggedIn]);
+
+  // If not logged in, show loading or redirect message
+  if (!isLoggedIn) {
+    return <LoadingSpinner text="Redirecting to login..." />;
+  }
 
   const handleRemoveItem = (productId) => {
+    if (!isLoggedIn) {
+      toast.warning("Please login to modify cart");
+      navigate("/login");
+      return;
+    }
     dispatch(removeCartItem(productId));
   };
 
   const handleUpdateItem = (productId, quantity) => {
+    if (!isLoggedIn) {
+      toast.warning("Please login to modify cart");
+      navigate("/login");
+      return;
+    }
+    
     if (quantity <= 0) {
-      dispatch(removeCartItem(productId)); // Remove item if quantity <= 0
+      dispatch(removeCartItem(productId));
     } else {
       dispatch(updateCartItem({ productId, quantity }));
     }
   };
 
   const handleClearCart = () => {
+    if (!isLoggedIn) {
+      toast.warning("Please login to modify cart");
+      navigate("/login");
+      return;
+    }
     dispatch(clearCart());
   };
 
   const handleCheckout = () => {
-    const cartDetails = items.map((item) => ({
-      productId: item.productId._id,
-      name: item.productId.name,
-      description: item.productId.prodDec, // Added product description
-      quantity: item.quantity,
-      price: item.productId.price,
-      totalPrice: item.quantity * item.productId.price,
-
-    }));
+    if (!isLoggedIn) {
+      toast.warning("Please login to proceed to checkout");
+      navigate("/login", { 
+        state: { 
+          from: "/cart",
+          message: "Login required for checkout" 
+        } 
+      });
+      return;
+    }
+    
+    if (items.length === 0) {
+      toast.warning("Your cart is empty");
+      return;
+    }
+    
     navigate("/checkout", { state: { cartItems: items } });
-    console.log("Proceeding to checkout with:", cartDetails);
-    // Redirect to checkout page with cartDetails
   };
 
+  const validCartItems = items?.filter(
+  item => item && item.productId
+) || [];
+
+  // Rest of your cart page JSX remains the same...
   return (
     <div className="container mt-5">
       <h2 className="text-center mb-4">Your Cart</h2>
 
+      {/* Loading state */}
       {status === "loading" && (
         <div className="text-center">
           <div className="spinner-border text-primary" role="status">
@@ -55,19 +112,37 @@ const CartPage = () => {
         </div>
       )}
 
-      {/* {status === "failed" && (
+      {/* Error state */}
+      {status === "failed" && (
         <div className="alert alert-danger text-center" role="alert">
-         No items found
+          Failed to load cart: {error}
+          <button 
+            onClick={() => dispatch(fetchCart())}
+            className="btn btn-warning btn-sm ms-3"
+          >
+            Retry
+          </button>
         </div>
-      )} */}
+      )}
 
-      {items.length === 0 ? (
+      {/* Empty cart */}
+      { validCartItems.length === 0 && status === "succeeded" ? (
         <div className="alert alert-info text-center" role="alert">
-          Your cart is empty
+          <h4>Your cart is empty</h4>
+          <p>Add some products to get started!</p>
+          <button 
+            onClick={() => navigate("/")}
+            className="btn btn-primary"
+          >
+            Continue Shopping
+          </button>
         </div>
       ) : (
         <div className="row">
-          {items.map((item, index) => (
+          {/* Cart validCartItems grid */}
+          {validCartItems
+          
+          .map((item, index) => (
             <div key={`${item.productId._id}-${index}`} className="col-md-6 col-lg-4 mb-4">
               <div className="card h-100 shadow-sm">
                 <div
@@ -82,7 +157,7 @@ const CartPage = () => {
                 </div>
                 <div className="card-body">
                   <h4 className="card-title">{item.productId.name}</h4>
-                  <p className="card-text text-muted">{item.productId.prodDec}</p> {/* Added product description */}
+                  <p className="card-text text-muted">{item.productId.prodDec}</p>
                   <p className="card-text">Quantity: {item.quantity}</p>
                   <p className="card-text">Price: ${item.productId.price}</p>
                   <div className="d-flex justify-content-between align-items-center">
@@ -112,14 +187,35 @@ const CartPage = () => {
         </div>
       )}
 
+      {/* Cart actions */}
       {items.length > 0 && (
         <div className="text-center mt-4">
-          <button className="btn btn-danger btn-lg me-3" onClick={handleClearCart}>
-            Clear Cart
-          </button>
-          <button className="btn btn-primary btn-lg" onClick={handleCheckout}>
-            Proceed to Checkout
-          </button>
+          <div className="d-flex justify-content-center gap-3">
+            <button className="btn btn-danger btn-lg" onClick={handleClearCart}>
+              Clear Cart
+            </button>
+            <button className="btn btn-primary btn-lg" onClick={handleCheckout}>
+              Proceed to Checkout
+            </button>
+          </div>
+          
+          {/* Cart Summary */}
+          <div className="card mt-4">
+            <div className="card-body">
+              <h5>Cart Summary</h5>
+              <hr />
+              <div className="d-flex justify-content-between">
+                <span>Total Items:</span>
+                <strong>{validCartItems.reduce((acc, item) => acc + item.quantity, 0)}</strong>
+              </div>
+              <div className="d-flex justify-content-between mt-2">
+                <span>Total Price:</span>
+                <strong className="text-success fs-4">
+                  ${validCartItems.reduce((acc, item) => acc + (item.productId.price * item.quantity), 0).toFixed(2)}
+                </strong>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

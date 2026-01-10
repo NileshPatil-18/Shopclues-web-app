@@ -17,7 +17,7 @@ router.post('/login',loginUser);
 
 router.get('/profile', authMiddleware, getUserProfile);
 router.put('/profile', authMiddleware, updateUserProfile);
-router.put('/password', authMiddleware, updateUserPassword);
+router.put('/profile/password', authMiddleware, updateUserPassword);
 router.delete('/profile', authMiddleware, deleteUserProfile);
 
 

@@ -12,7 +12,7 @@ const productSchema = mongoose.Schema({
         min: 0,
     },
     category: {
-        type: mongoose.Schema.Types.ObjectId, // ✅ Reference to Category model
+        type: mongoose.Schema.Types.ObjectId, 
         ref: "Category",
         required: true,
       },

@@ -1,11 +1,11 @@
 const Product = require("../models/productModel");
 
-// ✅ Add New Product
+// Add New Product
 const addProduct = async (req, res) => {
   try {
     const { name, price, category, brand, image, description } = req.body;
 
-    // Validation
+    
     if (!name || !price || !category  || !image) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -22,14 +22,13 @@ const addProduct = async (req, res) => {
   }
 };
 
-// ✅ Get All Products (Supports Search & Category Filtering)
+// Get All Products 
 const getAllProducts = async (req, res) => {
   try {
-    const { search, category } = req.query; // Get search & category from query
-
+    const { search, category } = req.query; 
     let query = {};
 
-    // 🔎 Search by name or description
+    //  Search by name or description
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } }, // Case-insensitive
@@ -37,7 +36,7 @@ const getAllProducts = async (req, res) => {
       ];
     }
 
-    // 📂 Filter by category
+    
     if (category) {
       query.category = category;
     }
@@ -49,7 +48,7 @@ const getAllProducts = async (req, res) => {
   }
 };
 
-// ✅ Get Product by ID
+//  Get Product by ID
 const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -65,7 +64,7 @@ const getProductById = async (req, res) => {
   }
 };
 
-// ✅ Get Products by Category
+//  Get Products by Category
 const getProductsByCategory = async (req, res) => {
   try {
     const { categoryId } = req.params;

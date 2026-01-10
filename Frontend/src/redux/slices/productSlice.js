@@ -13,7 +13,7 @@ export const fetchProductsByCategory = createAsyncThunk(
   'products/fetchProductsByCategory',
   async (categoryId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/products/category/${categoryId}`);
+      const response = await axios.get(`${API_BASE_URL}/api/products?category=${categoryId}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch products");
@@ -61,7 +61,7 @@ export const fetchProductById = createAsyncThunk(
           state.searchTerm = action.payload;
         },
         setSearching: (state, action) => {
-          state.isSearching = action.payload; // Toggle search mode
+          state.isSearching = action.payload; 
         },
       },
 

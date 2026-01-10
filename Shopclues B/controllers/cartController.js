@@ -6,8 +6,8 @@ const addToCart = async (req, res) => {
         console.log("Request user:", req.user); 
         console.log("Request body:", req.body);
 
-        const userId = req.user?.id; // Ensure userId is retrieved from req.user
-        const { items } = req.body; // Get items array
+        const userId = req.user?.id; 
+        const { items } = req.body; 
 
         if (!userId) {
             return res.status(400).json({ message: "User ID is required" });
@@ -22,7 +22,7 @@ const addToCart = async (req, res) => {
             cart = new Cart({ userId, items: [] });
         }
 
-        for (const { productId, quantity } of items) {  // ✅ Changed forEach to for...of
+        for (const { productId, quantity } of items) {  
             if (!productId) {
                 return res.status(400).json({ message: "Product ID is required" });
             }
@@ -59,15 +59,17 @@ const addToCart = async (req, res) => {
 const getCart = async(req,res)=>{
     try {
         const userId = req.user?.id;
-        const cart = await Cart.findOne({userId}).populate("items.productId");
-
-        if (!userId) {
-            return res.status(401).json({ message: "Unauthorized. User not found." }); // ✅ Changed from 400 to 401
+         if (!userId) {
+            return res.status(401).json({ message: "Unauthorized. User not found." }); 
         }
+        
+        let cart = await Cart.findOne({userId}).populate("items.productId");
+
         if(!cart){
-            return res.status(404).json({
-                message : 'cart is empty'
-            });
+            cart = await Cart.create({
+            user: req.user._id,
+            items: []
+        });
         }
 
         res.status(200).json(cart.items);
@@ -107,9 +109,9 @@ const updateCartItem = async (req, res) => {
         if (quantity === 0) {
             cart.items = cart.items.filter(
                 (item) => item.productId.toString() !== productId.toString()
-            ); // Remove item if quantity is 0
+            ); 
         } else {
-            item.quantity = quantity; // Update quantity
+            item.quantity = quantity; 
         }
 
         await cart.save();
@@ -124,8 +126,7 @@ const updateCartItem = async (req, res) => {
 const removeCartItem = async (req, res) => {
     try {
         const userId = req.user?.id;
-        const { productId } = req.body; // Ensure productId is from req.body
-
+        const { productId } = req.body; 
         if (!productId) {
             return res.status(400).json({ message: "Product ID is required" });
         }

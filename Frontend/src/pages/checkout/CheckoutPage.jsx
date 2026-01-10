@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { placeOrder } from "../../redux/slices/orderSlice";
 import { useNavigate } from "react-router-dom";
@@ -7,9 +7,10 @@ import {toast} from "react-toastify";
 const CheckoutPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { items:cartItems =[] } = useSelector((state) => state.cart || {});
+  const { items: cartItems = [] } = useSelector((state) => state.cart || {});
   const { loading, error } = useSelector((state) => state.orders);
-
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+  
   const totalPrice = cartItems.reduce((acc, item) => acc + item.productId.price * item.quantity, 0);
 
   const [orderData, setOrderData] = useState({
@@ -17,20 +18,33 @@ const CheckoutPage = () => {
     address: "",
   });
 
+  // Check authentication on mount
+  useEffect(() => {
+    if (!isLoggedIn) {
+      toast.error("Please login to proceed with payment");
+      navigate("/login");
+    }
+  }, [isLoggedIn, navigate]);
+
   const handleChange = (e) => {
     setOrderData({ ...orderData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
   
-    if (!orderData.paymentMethod) {
-      alert("Please select a payment method!");
+    if (!isLoggedIn) {
+      toast.error("Please login to place an order");
+      navigate("/login");
       return;
     }
-  
+
+    if (!orderData.paymentMethod) {
+      toast.error("Please select a payment method!");
+      return;
+    }
+
     if (orderData.paymentMethod === "Cash on Delivery") {
-      // Directly place the order and navigate to orders page
       dispatch(placeOrder({ ...orderData, cartItems, totalPrice })).then((res) => {
         if (res.meta.requestStatus === "fulfilled") {
           toast.success("Order placed successfully!");
@@ -38,8 +52,24 @@ const CheckoutPage = () => {
         }
       });
     } else {
-      // Redirect to payment page for other methods
-      navigate("/payment", { state: { orderData, cartItems, totalPrice } });
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Authentication token missing. Please login again.");
+        navigate("/login");
+        return;
+      }
+
+      navigate("/payment", { 
+        state: { 
+          orderData: {
+            ...orderData,
+            paymentStatus: "Pending"
+          }, 
+          cartItems, 
+          totalPrice,
+          authToken: token // Pass token for verification
+        } 
+      });
     }
   };
   
@@ -47,7 +77,7 @@ const CheckoutPage = () => {
   return (
     <div className="container py-5">
       <div className="row justify-content-center">
-        {/* Order Summary Section */}
+
         <div className="col-lg-5 mb-4">
           <div className="card shadow-sm border-0">
             <div className="card-header bg-primary text-white">
@@ -82,14 +112,12 @@ const CheckoutPage = () => {
           </div>
         </div>
 
-        {/* Checkout Form */}
         <div className="col-lg-5">
           <div className="card shadow-lg border-0 p-4">
             <h2 className="text-center fw-bold mb-3 text-primary">Checkout</h2>
             {error && <p className="alert alert-danger">{error}</p>}
 
             <form onSubmit={handleSubmit}>
-              {/* Address Input */}
               <div className="mb-3">
                 <label className="form-label fw-bold">Shipping Address</label>
                 <input
@@ -103,7 +131,6 @@ const CheckoutPage = () => {
                 />
               </div>
 
-              {/* Payment Method Selection */}
               <div className="mb-3">
                 <label className="form-label fw-bold">Payment Method</label>
                 <select
@@ -120,7 +147,6 @@ const CheckoutPage = () => {
                 </select>
               </div>
 
-              {/* Submit Button */}
               <div className="text-center">
                 <button
                   type="submit"

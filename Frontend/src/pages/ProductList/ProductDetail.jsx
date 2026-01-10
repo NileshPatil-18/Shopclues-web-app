@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchProductById } from "../../redux/slices/productSlice";
-
+import { getImageUrl } from "../../utils/imageUrl";
 const ProductDetail = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -35,8 +35,8 @@ const ProductDetail = () => {
         {/* Product Image */}
         <div className="col-md-6 text-center">
           <img
-            src={product.image}
-            alt={product.name}
+            src={getImageUrl(product.image)} alt={product.name}
+            // alt={product.name}
             className="img-fluid rounded shadow"
             style={{ maxHeight: "450px", objectFit: "cover" }}
           />

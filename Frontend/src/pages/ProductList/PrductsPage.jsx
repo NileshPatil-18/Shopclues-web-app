@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { addToCart } from "../../redux/slices/cartSlice";
 import { addToWishlist } from "../../redux/slices/wishlistSlice";
-
+import { getImageUrl } from "../../utils/imageUrl";
 const ProductsPage = () => {
   const dispatch = useDispatch();
   const { items, status, searchTerm } = useSelector((state) => state.products);
@@ -90,9 +90,9 @@ const ProductsPage = () => {
                     style={{ height: "200px", overflow: "hidden" }}
                   >
                     <img
-                      src={product.image}
+                      src={getImageUrl(product.image)} alt={product.name}
                       className="w-75 h-75 object-fit-contain p-2"
-                      alt={product.name}
+                      // alt={product.name}
                     />
                   </div>
 

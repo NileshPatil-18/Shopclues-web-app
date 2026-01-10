@@ -1,15 +1,15 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-// API Base URL (Change according to your backend)
-const API_URL = "https://shopclues-xr1j.onrender.com/api/cart";  
+// API Base URL 
+const API_URL = "https://shopclues-xr1j.onrender.com/api";  
 
-// 🔹 Add Item to Cart
+//  Add Item to Cart
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async ({ productId, quantity }, { getState, rejectWithValue }) => {
     try {
-      const token = getState().auth.token;  // Get user token from auth state
-      const response = await fetch(API_URL, {
+      const token = getState().auth.token;  
+      const response = await fetch(`${API_URL}/cart`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -27,34 +27,38 @@ export const addToCart = createAsyncThunk(
   }
 );
 
-// 🔹 Get Cart Items
+//  Get Cart Items
 export const fetchCart = createAsyncThunk(
   "cart/fetchCart",
   async (_, { getState, rejectWithValue }) => {
     try {
       const token = getState().auth.token;
-      const response = await fetch(API_URL, {
+      const response = await fetch(`${API_URL}/cart`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
+       if (response.status === 404) {
+        return []; // ✅ empty cart
+      }
       if (!response.ok) throw new Error("Failed to fetch cart");
 
-      return await response.json();
+      const data = await response.json()
+      return data || [];
     } catch (error) {
       return rejectWithValue(error.message);
     }
   }
 );
 
-// 🔹 Update Cart Item Quantity
+// Update Cart Item Quantity
 export const updateCartItem = createAsyncThunk(
   "cart/updateCartItem",
   async ({ productId, quantity }, { getState, rejectWithValue }) => {
     try {
       const token = getState().auth.token;
-      const response = await fetch(`${API_URL}/item`, {
+      const response = await fetch(`${API_URL}/cart/item`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -72,13 +76,13 @@ export const updateCartItem = createAsyncThunk(
   }
 );
 
-// 🔹 Remove Item from Cart
+//  Remove Item from Cart
 export const removeCartItem = createAsyncThunk(
   "cart/removeCartItem",
   async (productId, { getState, rejectWithValue }) => {
     try {
       const token = getState().auth.token;
-      const response = await fetch(`${API_URL}/item`, {
+      const response = await fetch(`${API_URL}/cart/item`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -96,13 +100,13 @@ export const removeCartItem = createAsyncThunk(
   }
 );
 
-// 🔹 Clear Cart
+//  Clear Cart
 export const clearCart = createAsyncThunk(
   "cart/clearCart",
   async (_, { getState, rejectWithValue }) => {
     try {
       const token = getState().auth.token;
-      const response = await fetch(API_URL, {
+      const response = await fetch(`${API_URL}/cart`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -122,7 +126,7 @@ const cartSlice = createSlice({
   name: "cart",
   initialState: {
     items: [],
-    status: "idle", // idle | loading | succeeded | failed
+    status: "idle", 
     error: null,
   },
   reducers: {},
@@ -133,9 +137,9 @@ const cartSlice = createSlice({
         state.status = "loading";
       })
       .addCase(fetchCart.fulfilled, (state, action) => {
-        console.log("Cart Data:", action.payload);
+        
         state.status = "succeeded";
-        state.items = action.payload;
+        state.items = action.payload || [];
       })
       .addCase(fetchCart.rejected, (state, action) => {
         state.status = "failed";
