@@ -9,9 +9,10 @@ const getAllOrdersAdmin = async (req, res) => {
         let query = {};
 
         // Status filter
-        if (status) {
+        if (status && status.trim() !== "") {
             query.status = status;
         }
+
 
         // Date range filter
         if (startDate || endDate) {

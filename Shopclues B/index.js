@@ -50,6 +50,8 @@ app.use((req, res, next) => {
 });
 
 // Mount routes
+app.use('/api/admin', adminRoutes); 
+
 app.use('/api', userRoutes); // Admin routes
 app.use('/api', productRoutes);
 app.use('/api', categoryRoute);
@@ -57,7 +59,6 @@ app.use('/api', cartRoutes);
 app.use('/api/wishlist',wishlistRoutes);
 app.use('/api', orderRoutes);
 app.use('/api/payments', paymentRoutes);
-app.use('/api/admin', adminRoutes); 
 
 // Route listing endpoint for debugging
 app.get('/api/debug/routes', (req, res) => {
