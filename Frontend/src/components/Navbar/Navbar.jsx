@@ -142,7 +142,7 @@ const Navbar = () => {
                     key={category._id}
                     className="nav-link text-white px-3 py-2 text-nowrap"
                   >
-                    {category.name}
+                    {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
                   </Link>
                 ))
               ) : (

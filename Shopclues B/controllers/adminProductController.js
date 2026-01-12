@@ -15,8 +15,9 @@ const getAllProductsAdmin = async(req,res)=>{
             ];
         }
 
-        if(category){
-            query.category = category;
+        if (category) {
+            const cat = await Category.findOne({ name: category });
+            if (cat) query.category = cat._id;
         }
 
         const skip = (page-1)*limit;
@@ -59,7 +60,7 @@ const createProduct = async (req, res) => {
         const { name, price, category, description, image, brand, stock } = req.body;
 
         // Validate required fields
-        if (!name || !price || !category || !image) {
+        if (!name || price == null || !category || !image) {
             return res.status(400).json({
                 success: false,
                 message: "Name, price, category, and image are required"

@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchProductById } from "../../redux/slices/productSlice";
 import { getImageUrl } from "../../utils/imageUrl";
+import { addToCart } from "../../redux/slices/cartSlice";
+import { toast } from "react-toastify";
 const ProductDetail = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -27,6 +29,21 @@ const ProductDetail = () => {
   if (!product) {
     return <div className="text-center text-muted mt-4">Product not found.</div>;
   }
+
+   const handleAddToCart = (productId, quantity = 1) => {
+      if (!isLoggedIn) {
+        toast.warning("Please login to add items to the cart!", {
+          position: "top-right",
+          autoClose: 2000,
+        });
+        navigate("/login");
+      }else {
+      dispatch(addToCart({ productId, quantity }));
+      toast.success("Product added to cart!", {
+        position: "top-right",
+        autoClose: 2000,})
+      }
+    };
 
   return (
     <div className="container py-5">
@@ -58,12 +75,14 @@ const ProductDetail = () => {
                 if(!isLoggedIn){
                   navigate("/login")
                 }else{
-                  navigate("/checkout")}
+                  handleAddToCart(product);
+                  navigate("/cart")}
                 }
               }
+              
                 
             >
-              ✅ Proceed to Checkout
+              ✅ Add to Cart
             </button>
           </div>
         </div>
